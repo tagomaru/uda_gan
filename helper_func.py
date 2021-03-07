@@ -126,92 +126,57 @@ def test(dataset,model,criterion):
     correct_d = 0
     pred_l = []
     pred_s = []
-    targets_l = []
+    targets = []
     targets_s = []
     targets_d = []
 #     latents_s = []
     with torch.no_grad():
-        for data, target_l, target_s, target_d,_ in dataset:
-            data, target_l, target_s, target_d = data.to('cuda'), target_l.to('cuda'), target_s.to('cuda'), target_d.to('cuda')
-            output, _, output_s, _ = model((data,data),0.)
-#             latents_s = np.append(latents_s,latent_s.cpu().numpy().squeeze())
+        for data, target_l, target_s, target_d, target in dataset:
+            data, target_l, target_s, target_d, target = data.to('cuda'), target_l.to('cuda'), target_s.to('cuda'), target_d.to('cuda'), target.to('cuda')
+            _, output, _ = model((data,data),0.)
             test_loss1 += float(criterion(output, target_l))  # sum up batch loss
-            test_loss2 += float(criterion(output_s, target_s))  # sum up batch loss
             pred = output.max(1, keepdim=True)[1]  # get the index of the max log-probability
             pred_l = np.append(pred_l,pred.cpu().numpy().squeeze())
-            targets_l = np.append(targets_l,target_l.cpu().numpy().squeeze())
-            pred = output_s.max(1, keepdim=True)[1]  # get the index of the max log-probability
-            pred_s = np.append(pred_s,pred.cpu().numpy().squeeze())
-            targets_s=np.append(targets_s,target_s.cpu().numpy().squeeze())
-            targets_d=np.append(targets_d,target_d.cpu().numpy().squeeze())
-    pred_d = pred_l.copy()
-    pred_d[pred_d != 0] = 1
-    pred_l = pred_l[targets_l!=0]
-    pred_s = pred_s[targets_s!=0]
+            targets = np.append(targets,target.cpu().numpy().squeeze())
+    pred_l = pred_l[targets!=0]
     targets_l = targets_l[targets_l!=0]
-    targets_s = targets_s[targets_s!=0]
     correct = float(np.sum(pred_l==targets_l))
-    correct1 = float(np.sum(pred_s==targets_s))
     test_loss1 /= len(dataset)
-    test_loss2 /= len(dataset)
-    f1_l = f1_score(pred_l,targets_l,average='macro')
-    f1_s = f1_score(pred_s,targets_s,average='macro')
-    f1_d = f1_score(pred_d,targets_d,average='macro')
-    return f1_l,f1_s,f1_d,correct, correct1, test_loss1,test_loss2
+    return correct, test_loss1
 
 def test_epoch(epoch,report_itv,source_train,source_test,target_train,target_test,model,criterion):
     losses_save = []
     accuracy_save = []
     f1_save =[]
 
-    f1_l,f1_s,f1_d,correct, correct1, test_loss1,test_loss2 = test(source_train,model,criterion)
-    f1_save.append(f1_l)
-    f1_save.append(f1_s)
-    f1_save.append(f1_d)
-    losses_save.append(test_loss1)
-    losses_save.append(test_loss2)
+    correct,test_loss = test(source_train,model,criterion)
+    losses_save.append(test_loss)
     accuracy_save.append(correct)
-    accuracy_save.append(correct1)
     if epoch%report_itv == 0:
         print('Source Train set: Average loss: {:.4f}, {:.4f}'.format(
             test_loss1, test_loss2))    
     
-    f1_l,f1_s,f1_d,correct, correct1, test_loss1,test_loss2 = test(source_test,model,criterion)
-    f1_save.append(f1_l)
-    f1_save.append(f1_s)
-    f1_save.append(f1_d)
-    losses_save.append(test_loss1)
-    losses_save.append(test_loss2)
+    correct,test_loss = test(source_test,model,criterion)
+    losses_save.append(test_loss)
     accuracy_save.append(correct)
-    accuracy_save.append(correct1)
     if epoch%report_itv == 0:
         print('Source test set: Average loss: {:.4f}, {:.4f}'.format(
             test_loss1, test_loss2))    
     
-    f1_l,f1_s,f1_d,correct, correct1, test_loss1,test_loss2 = test(target_train,model,criterion)
-    f1_save.append(f1_l)
-    f1_save.append(f1_s)
-    f1_save.append(f1_d)
-    losses_save.append(test_loss1)
-    losses_save.append(test_loss2)
+    correct,test_loss = test(target_train,model,criterion)
+    losses_save.append(test_loss)
     accuracy_save.append(correct)
-    accuracy_save.append(correct1)    
     if epoch%report_itv == 0:
         print('Target train set: Average loss: {:.4f}, {:.4f}'.format(
             test_loss1, test_loss2))  
     
-    f1_l,f1_s,f1_d,correct, correct1, test_loss1,test_loss2 = test(target_test,model,criterion)
-    f1_save.append(f1_l)
-    f1_save.append(f1_s)
-    f1_save.append(f1_d)
-    losses_save.append(test_loss1)
-    losses_save.append(test_loss2)
+    correct,test_loss = test(target_test,model,criterion)
+    losses_save.append(test_loss)
     accuracy_save.append(correct)
-    accuracy_save.append(correct1)    
     if epoch%report_itv == 0:
         print('Target test set: Average loss: {:.4f}, {:.4f}'.format(
             test_loss1, test_loss2))
-    return losses_save,accuracy_save,f1_save
+    return losses_save,accuracy_save
 
 
 def optimizer_scheduler(optimizer, p):

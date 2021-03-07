@@ -40,18 +40,18 @@ class Dann(nn.Module):
                 nn.MaxPool2d(2),
                 nn.ReLU(),
             )
-        self.lc = nn.Sequential(
-            nn.Linear(50*self.height*self.height, 100),
-            nn.BatchNorm1d(100),
-            nn.ReLU(),
-            nn.Dropout(),
-            nn.Linear(100, 100),
-            nn.BatchNorm1d(100),
-            nn.ReLU(),
-            nn.Dropout(),
-            nn.Linear(100, 4),
-            nn.Sigmoid(),
-        )
+#        self.lc = nn.Sequential(
+#            nn.Linear(50*self.height*self.height, 100),
+#            nn.BatchNorm1d(100),
+#            nn.ReLU(),
+#            nn.Dropout(),
+#            nn.Linear(100, 100),
+#            nn.BatchNorm1d(100),
+#            nn.ReLU(),
+#            nn.Dropout(),
+#            nn.Linear(100, 4),
+#            nn.Sigmoid(),
+#        )
         self.sc = nn.Sequential(
             nn.Linear(50*self.height*self.height, 100),
             nn.BatchNorm1d(100),
@@ -61,7 +61,7 @@ class Dann(nn.Module):
             nn.BatchNorm1d(100),
             nn.ReLU(),
             nn.Dropout(),
-            nn.Linear(100, 5),
+            nn.Linear(100, 13),
             nn.Sigmoid(),
         )
         self.dc = nn.Sequential(
@@ -72,21 +72,12 @@ class Dann(nn.Module):
             nn.Sigmoid(),
         )
     def forward(self, x, alpha):
-#         print(x.shape)
-        xl,xq = x
-        latent_xl = self.f(xl)
-        latent_xq = self.f(xq)
-#         print(x.shape)
-        latent_xl = latent_xl.view(-1, 50*self.height*self.height)
-        latent_xq = latent_xq.view(-1, 50*self.height*self.height)
-        x = self.lc(latent_xl)
-        s = self.sc(latent_xq)
-        y_xl = GRL.apply(latent_xl, alpha)
-        d_xl = self.dc(y_xl)
-        y_xq = GRL.apply(latent_xq, alpha)
-        d_xq = self.dc(y_xq)
+        latent = self.f(x)
+        latent = latent.view(-1, 50*self.height*self.height)
+        s = self.sc(latent)
+        y = GRL.apply(latent, alpha)
+        d = self.dc(y)
         x=x.view(x.shape[0],-1)
         s=s.view(s.shape[0],-1)
-        d_xl=d_xl.view(d_xl.shape[0],-1)
-        d_xq=d_xq.view(d_xq.shape[0],-1)
-        return x, (d_xl,d_xq), s,(latent_xl,latent_xq)
+        d=d.view(d.shape[0],-1)
+        return d, s, latent
