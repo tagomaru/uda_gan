@@ -9,11 +9,11 @@ Use GAN for unsupervised domain adaptation.
 
 ## Usage
 Clone the repository
-‘’‘rb
+'''
 https://github.com/jingxiaoliu/uda_gan.git
 cd uda_gan
 '''
 
 ## Get the dataset
 Send an email to
-(mailto:liujx@stanford.edu?subject=[GitHub]%20Source%20Han%20Sans)
+liujx@stanford.edu
