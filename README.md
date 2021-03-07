@@ -9,10 +9,10 @@ Use GAN for unsupervised domain adaptation.
 
 ## Usage
 Clone the repository
-''' python
+'''python
 https://github.com/jingxiaoliu/uda_gan.git
 cd uda_gan
-'''
+···
 
 ## Get the dataset
 Send an email to
