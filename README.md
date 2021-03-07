@@ -9,7 +9,7 @@ Use GAN for unsupervised domain adaptation.
 
 ## Usage
 Clone the repository
-'''
+''' python
 https://github.com/jingxiaoliu/uda_gan.git
 cd uda_gan
 '''
