@@ -77,7 +77,6 @@ class Dann(nn.Module):
         s = self.sc(latent)
         y = GRL.apply(latent, alpha)
         d = self.dc(y)
-        x=x.view(x.shape[0],-1)
         s=s.view(s.shape[0],-1)
         d=d.view(d.shape[0],-1)
         return d, s, latent

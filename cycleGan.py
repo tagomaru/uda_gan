@@ -121,10 +121,10 @@ class Solver(object):
             # train with real images
             self.reset_grad()
             out = self.d1(target)
-            if self.use_labels:
+            if self.use_labels: # False
                 d1_loss = criterion(out, m_labels)
             else:
-                d1_loss = torch.mean((out-1)**2)
+                d1_loss = torch.mean((out-1)**2) # |output-allones|^2
             
             out = self.d2(source)
             if self.use_labels:
@@ -145,7 +145,7 @@ class Solver(object):
             if self.use_labels:
                 d2_loss = criterion(out, source_fake_labels)
             else:
-                d2_loss = torch.mean(out**2)
+                d2_loss = torch.mean(out**2) # |output-0|^2
             
             fake_target = self.g21(source)
             out = self.d1(fake_target)
@@ -227,12 +227,13 @@ class Solver(object):
                 torch.save(self.g21.state_dict(), g21_path)
                 torch.save(self.d1.state_dict(), d1_path)
                 torch.save(self.d2.state_dict(), d2_path)
+                
     def gst(self, dataloader):
         iter_ = iter(dataloader)
         
         data_ = self.to_var(iter_.next()[0])
         self.g21.eval()
-        fake_ = self.g21(data_)
+        fake_ = self.g21(data_) # fake target
         return self.to_data(fake_)
 
 

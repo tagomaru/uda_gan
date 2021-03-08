@@ -19,7 +19,7 @@ def conv(c_in, c_out, k_size, stride=2, pad=1, bn=True):
     return nn.Sequential(*layers)
 
 class G12(nn.Module):
-    """Generator for transfering from mnist to svhn"""
+    """Generator for transfering from source to target"""
     def __init__(self, conv_dim=64):
         super(G12, self).__init__()
         # encoding blocks
@@ -35,6 +35,7 @@ class G12(nn.Module):
         self.deconv2 = deconv(conv_dim, 4, 4, bn=False)
         
     def forward(self, x):
+    # x --> source image (?, 4, 64, 64)
         out = F.leaky_relu(self.conv1(x), 0.05)      # (?, 64, 32, 32)
         out = F.leaky_relu(self.conv2(out), 0.05)    # (?, 128, 16, 16)
         
@@ -42,11 +43,12 @@ class G12(nn.Module):
         out = F.leaky_relu(self.conv4(out), 0.05)    # ( " )
         
         out = F.leaky_relu(self.deconv1(out), 0.05)  # (?, 64, 32, 32)
-        out = F.tanh(self.deconv2(out))              # (?, 3, 64, 64)
+        out = F.tanh(self.deconv2(out))              # (?, 4, 64, 64)
+    # out --> fake target (?, 4, 64, 64)
         return out
     
 class G21(nn.Module):
-    """Generator for transfering from svhn to mnist"""
+    """Generator for transfering from target to source"""
     def __init__(self, conv_dim=64):
         super(G21, self).__init__()
         # encoding blocks
@@ -69,11 +71,11 @@ class G21(nn.Module):
         out = F.leaky_relu(self.conv4(out), 0.05)    # ( " )
         
         out = F.leaky_relu(self.deconv1(out), 0.05)  # (?, 64, 32, 32)
-        out = F.tanh(self.deconv2(out))              # (?, 1, 64, 64)
+        out = F.tanh(self.deconv2(out))              # (?, 4, 64, 64)
         return out
     
 class D1(nn.Module):
-    """Discriminator for mnist."""
+    """Discriminator for source."""
     def __init__(self, conv_dim=64, use_labels=False):
         super(D1, self).__init__()
         self.conv1 = conv(4, conv_dim, 4, bn=False)
@@ -83,6 +85,7 @@ class D1(nn.Module):
         self.fc = conv(conv_dim*4, n_out, 4, 1, 0, False)
         
     def forward(self, x):
+    # x --> (?, 4, 64, 64)
         out = F.leaky_relu(self.conv1(x), 0.05)    # (?, 64, 32, 32)
         out = F.leaky_relu(self.conv2(out), 0.05)  # (?, 128, 16, 16)
         out = F.leaky_relu(self.conv3(out), 0.05)  # (?, 256, 8, 8)
@@ -90,7 +93,7 @@ class D1(nn.Module):
         return out
 
 class D2(nn.Module):
-    """Discriminator for svhn."""
+    """Discriminator for target."""
     def __init__(self, conv_dim=64, use_labels=False):
         super(D2, self).__init__()
         self.conv1 = conv(4, conv_dim, 4, bn=False)

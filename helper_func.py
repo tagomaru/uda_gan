@@ -133,14 +133,14 @@ def test(dataset,model,criterion):
     with torch.no_grad():
         for data, target_l, target_s, target_d, target in dataset:
             data, target_l, target_s, target_d, target = data.to('cuda'), target_l.to('cuda'), target_s.to('cuda'), target_d.to('cuda'), target.to('cuda')
-            _, output, _ = model((data,data),0.)
+            _, output, _ = model(data,0.)
             test_loss1 += float(criterion(output, target_l))  # sum up batch loss
             pred = output.max(1, keepdim=True)[1]  # get the index of the max log-probability
             pred_l = np.append(pred_l,pred.cpu().numpy().squeeze())
             targets = np.append(targets,target.cpu().numpy().squeeze())
     pred_l = pred_l[targets!=0]
-    targets_l = targets_l[targets_l!=0]
-    correct = float(np.sum(pred_l==targets_l))
+    targets = targets[targets!=0]
+    correct = float(np.sum(pred_l==targets))
     test_loss1 /= len(dataset)
     return correct, test_loss1
 
@@ -153,29 +153,29 @@ def test_epoch(epoch,report_itv,source_train,source_test,target_train,target_tes
     losses_save.append(test_loss)
     accuracy_save.append(correct)
     if epoch%report_itv == 0:
-        print('Source Train set: Average loss: {:.4f}, {:.4f}'.format(
-            test_loss1, test_loss2))    
+        print('Source Train set: Average loss: {:.4f}'.format(
+            test_loss))    
     
     correct,test_loss = test(source_test,model,criterion)
     losses_save.append(test_loss)
     accuracy_save.append(correct)
     if epoch%report_itv == 0:
-        print('Source test set: Average loss: {:.4f}, {:.4f}'.format(
-            test_loss1, test_loss2))    
+        print('Source test set: Average loss: {:.4f}'.format(
+            test_loss))    
     
     correct,test_loss = test(target_train,model,criterion)
     losses_save.append(test_loss)
     accuracy_save.append(correct)
     if epoch%report_itv == 0:
-        print('Target train set: Average loss: {:.4f}, {:.4f}'.format(
-            test_loss1, test_loss2))  
+        print('Target train set: Average loss: {:.4f}'.format(
+            test_loss))  
     
     correct,test_loss = test(target_test,model,criterion)
     losses_save.append(test_loss)
     accuracy_save.append(correct)
     if epoch%report_itv == 0:
-        print('Target test set: Average loss: {:.4f}, {:.4f}'.format(
-            test_loss1, test_loss2))
+        print('Target test set: Average loss: {:.4f}'.format(
+            test_loss))
     return losses_save,accuracy_save
 
 
