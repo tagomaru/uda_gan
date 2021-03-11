@@ -9,8 +9,8 @@ import imageio
 
 from torch.autograd import Variable
 from torch import optim
-from model import G12, G21
-from model import D1, D2
+from model_cyclegan import G12, G21
+from model_cyclegan import D1, D2
 
 
 class Solver(object):
