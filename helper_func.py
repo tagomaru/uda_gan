@@ -150,8 +150,8 @@ def test_epoch(epoch, report_itv, source_train, source_test, target_train, targe
     losses_save.append(test_loss)
     accuracy_save.append(correct)
     if epoch % report_itv == 0:
-        print('Source Train set: Average loss: {:.4f}, Accuracy: {:.4f}'.format(
-            test_loss, correct))    
+        print('Source Train set: Average loss: {:.4f}'.format(
+            test_loss))    
     
     correct, test_loss = test(source_test, model, criterion)
     losses_save.append(test_loss)
@@ -164,8 +164,8 @@ def test_epoch(epoch, report_itv, source_train, source_test, target_train, targe
     losses_save.append(test_loss)
     accuracy_save.append(correct)
     if epoch % report_itv == 0:
-        print('Target train set: Average loss: {:.4f}, Accuracy: {:.4f}'.format(
-            test_loss, correct))  
+        print('Target train set: Average loss: {:.4f}'.format(
+            test_loss))  
     
     correct, test_loss = test(target_test, model, criterion)
     losses_save.append(test_loss)
