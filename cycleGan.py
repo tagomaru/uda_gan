@@ -1,9 +1,6 @@
 import torch
 import torch.nn as nn
-import torchvision
 import os
-import pickle
-import scipy.io
 import numpy as np
 import imageio
 
@@ -235,5 +232,26 @@ class Solver(object):
         self.g21.eval()
         fake_ = self.g21(data_) # fake target
         return self.to_data(fake_)
+    
+    def load_models(self, step):
+        g12_path = os.path.join(self.model_path, 'g12-%d.pkl' %step)
+        g21_path = os.path.join(self.model_path, 'g21-%d.pkl' %step)
+        d1_path = os.path.join(self.model_path, 'd1-%d.pkl' %step)
+        d2_path = os.path.join(self.model_path, 'd2-%d.pkl' %step)
+
+        self.g12 = G12(conv_dim=self.g_conv_dim)
+        self.g21 = G21(conv_dim=self.g_conv_dim)
+        self.d1 = D1(conv_dim=self.d_conv_dim, use_labels=self.use_labels)
+        self.d2 = D2(conv_dim=self.d_conv_dim, use_labels=self.use_labels)
+
+        self.g12.load_state_dict(torch.load(g12_path))
+        self.g21.load_state_dict(torch.load(g21_path))
+        self.d1.load_state_dict(torch.load(d1_path))
+        self.d2.load_state_dict(torch.load(d2_path))
+        if torch.cuda.is_available():
+            self.g12.cuda()
+            self.g21.cuda()
+            self.d1.cuda()
+            self.d2.cuda()
 
 
